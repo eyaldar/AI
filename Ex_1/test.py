@@ -7,9 +7,9 @@ _goal_state = [[1, 2, 3],
                [8, 0, 4],
                [7, 6, 5]]
 
-_start_state = [[4, 7, 8],
-               [6, 3, 2],
-               [0, 5, 1]]
+_start_state = [[1, 2, 8],
+               [6, 3, 7],
+               [0, 5, 4]]
 _val_to_target_loc = {1: 0, 2: 1, 3: 2, 8: 3, 0: 4, 4: 5, 7: 6, 6: 7, 5: 8}
 
 
@@ -217,24 +217,6 @@ def h_manhattan(puzzle):
                 lambda t: t)
 
 
-def h_manhattan_lsq(puzzle):
-    return heur(puzzle,
-                lambda r, tr, c, tc: (abs(tr - r) + abs(tc - c)) ** 2,
-                lambda t: math.sqrt(t))
-
-
-def h_linear(puzzle):
-    return heur(puzzle,
-                lambda r, tr, c, tc: math.sqrt(math.sqrt((tr - r) ** 2 + (tc - c) ** 2)),
-                lambda t: t)
-
-
-def h_linear_lsq(puzzle):
-    return heur(puzzle,
-                lambda r, tr, c, tc: (tr - r) ** 2 + (tc - c) ** 2,
-                lambda t: math.sqrt(t))
-
-
 def h_default(puzzle):
     return 0
 
@@ -250,12 +232,6 @@ def main():
         print i
 
     print "Solved with Manhattan distance exploring", count, "states"
-    path, count = p.solve(h_manhattan_lsq)
-    print "Solved with Manhattan least squares exploring", count, "states"
-    path, count = p.solve(h_linear)
-    print "Solved with linear distance exploring", count, "states"
-    path, count = p.solve(h_linear_lsq)
-    print "Solved with linear least squares exploring", count, "states"
 
 #    path, count = p.solve(heur_default)
 #    print "Solved with BFS-equivalent in", count, "moves"
