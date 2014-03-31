@@ -37,9 +37,9 @@ def reject(path):
 
 # MAIN
 import time
-start_time = time.time()
 
-for i in range(4, 11, 2):
+for i in range(4, 31, 2):
+    start_time = time.time()
     print 'N =', i
     print 'solution: ', back([], i)
     print time.time() - start_time, "seconds"

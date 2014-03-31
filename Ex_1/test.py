@@ -10,8 +10,11 @@ _goal_state = [[1, 2, 3],
 _start_state = [[1, 2, 8],
                [6, 3, 7],
                [0, 5, 4]]
-_val_to_target_loc = {1: 0, 2: 1, 3: 2, 8: 3, 0: 4, 4: 5, 7: 6, 6: 7, 5: 8}
 
+# A mapping for each tile as represented in the goal state
+_goal_state_mapping = {1: 0, 2: 1, 3: 2,
+                      8: 3, 0: 4, 4: 5,
+                      7: 6, 6: 7, 5: 8}
 
 def index(item, seq):
     """Helper function that returns -1 for non-found index value of a seq"""
@@ -82,6 +85,7 @@ class EightPuzzle:
             p._parent = self
             return p
 
+
         return map(lambda pair: swap_and_clone(zero, pair), free)
 
     def _generate_solution_path(self, path):
@@ -143,14 +147,6 @@ class EightPuzzle:
         # if finished state not found, return failure
         return [], 0
 
-    def shuffle(self, step_count):
-        for i in range(step_count):
-            row, col = self.find(0)
-            free = self._get_legal_moves()
-            target = random.choice(free)
-            self.swap((row, col), target)
-            row, col = target
-
     def find(self, value):
         """returns the row, col coordinates of the specified value
            in the graph"""
@@ -193,9 +189,9 @@ def heur(puzzle, item_total_calc, total_calc):
     for row in range(3):
         for col in range(3):
             val = puzzle.peek(row, col) - 1
-            right_loc = val
-            if val > -1:
-                right_loc = _val_to_target_loc[val]
+           # right_loc = val
+           # if val > -1:
+           #     right_loc = _val_to_target_loc[val]
             target_col = right_loc % 3
             target_row = right_loc / 3
 
@@ -215,11 +211,6 @@ def h_manhattan(puzzle):
     return heur(puzzle,
                 lambda r, tr, c, tc: abs(tr - r) + abs(tc - c),
                 lambda t: t)
-
-
-def h_default(puzzle):
-    return 0
-
 
 def main():
     p = EightPuzzle()
