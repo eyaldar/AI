@@ -1,7 +1,18 @@
-# A matrix representing the start state of the puzzle
-_start_state = [[8, 3, 5],
-                [1, 0, 2],
-                [6, 7, 4]]
+# matrices representing the start state of the puzzle
+_first_start_state = [[4, 7, 8],
+                      [6, 3, 2],
+                      [0, 5, 1]]
+
+_second_start_state = [[1, 4, 7],
+                      [2, 5, 8],
+                      [3, 6, 0]]
+
+_third_start_state = [[8, 3, 5],
+                      [1, 0, 2],
+                      [6, 7, 4]]
+
+
+_states_to_solve = [_first_start_state, _second_start_state, _third_start_state]
 
 # A matrix representing the goal (final) state of the puzzle
 _goal_state = [[1, 2, 3],
@@ -13,6 +24,13 @@ _goal_state_mapping = {1: 0, 2: 1, 3: 2,
                        8: 3, 0: 4, 4: 5,
                        7: 6, 6: 7, 5: 8}
 
+
+def get_inversions_num(state_arr):
+    inversions_num = 0
+
+    return inversions_num
+
+
 def index(item, seq):
     """Helper function that returns -1 for non-found index value of a seq"""
     if item in seq:
@@ -20,18 +38,19 @@ def index(item, seq):
     else:
         return -1
 
+
 # A class representing the puzzle`s tiles state
 class EightPuzzle:
-    def __init__(self):
+    def __init__(self, start_state):
         # heuristic value
-        self._hval = 0
+        self._h_val = 0
         # search depth of current instance
         self._depth = 0
         # parent node in search path
         self._parent = None
         self.adj_matrix = []
-        for i in range(3):
-            self.adj_matrix.append(_start_state[i][:])
+        for i in xrange(3):
+            self.adj_matrix.append(start_state[i][:])
 
     def __eq__(self, other):
         if self.__class__ != other.__class__:
@@ -41,15 +60,13 @@ class EightPuzzle:
 
     def __str__(self):
         res = ''
-        for row in range(3):
+        for row in xrange(3):
             res += ' '.join(map(str, self.adj_matrix[row]))
             res += '\r\n'
         return res
 
     def _clone(self):
-        p = EightPuzzle()
-        for i in range(3):
-            p.adj_matrix[i] = self.adj_matrix[i][:]
+        p = EightPuzzle(self.adj_matrix)
         return p
 
     def _get_legal_moves(self):
@@ -71,6 +88,15 @@ class EightPuzzle:
 
         return free
 
+    def is_solvable(self):
+        arr = []
+        for row in self.adj_matrix:
+            arr += row
+
+        inversion_num = get_inversions_num(arr)
+
+        return inversion_num % 2 == 1
+
     def _generate_moves(self):
         free = self._get_legal_moves()
         zero = self.find(0)
@@ -82,11 +108,10 @@ class EightPuzzle:
             p._parent = self
             return p
 
-
         return map(lambda pair: swap_and_clone(zero, pair), free)
 
     def _generate_solution_path(self, path):
-        if self._parent == None:
+        if self._parent is None:
             return path
         else:
             path.append(self)
@@ -100,46 +125,46 @@ class EightPuzzle:
         def is_solved(puzzle):
             return puzzle.adj_matrix == _goal_state
 
-        openl = [self]
-        closedl = []
+        opened_states = [self]
+        closed_states = []
         move_count = 0
-        while len(openl) > 0:
-            x = openl.pop(0)
+        while len(opened_states) > 0:
+            x = opened_states.pop(0)
             move_count += 1
-            if (is_solved(x)):
-                if len(closedl) > 0:
+            if is_solved(x):
+                if len(closed_states) > 0:
                     return x._generate_solution_path([]), move_count
                 else:
                     return [x]
 
-            succ = x._generate_moves()
+            son_states = x._generate_moves()
             idx_open = idx_closed = -1
-            for move in succ:
+            for move in son_states:
                 # have we already seen this node?
-                idx_open = index(move, openl)
-                idx_closed = index(move, closedl)
-                hval = h(move)
-                fval = hval + move._depth
+                idx_open = index(move, opened_states)
+                idx_closed = index(move, closed_states)
+                h_val = h(move)
+                f_val = h_val + move._depth
 
                 if idx_closed == -1 and idx_open == -1:
-                    move._hval = hval
-                    openl.append(move)
+                    move._h_val = h_val
+                    opened_states.append(move)
                 elif idx_open > -1:
-                    copy = openl[idx_open]
-                    if fval < copy._hval + copy._depth:
-                        # copy move's values over existing
-                        copy._hval = hval
+                    copy = opened_states[idx_open]
+                    if f_val < copy._h_val + copy._depth:
+                        # copy the move values over existing
+                        copy._h_val = h_val
                         copy._parent = move._parent
                         copy._depth = move._depth
                 elif idx_closed > -1:
-                    copy = closedl[idx_closed]
-                    if fval < copy._hval + copy._depth:
-                        move._hval = hval
-                        closedl.remove(copy)
-                        openl.append(move)
+                    copy = closed_states[idx_closed]
+                    if f_val < copy._h_val + copy._depth:
+                        move._h_val = h_val
+                        closed_states.remove(copy)
+                        opened_states.append(move)
 
-            closedl.append(x)
-            openl = sorted(openl, key=lambda p: p._hval + p._depth)
+            closed_states.append(x)
+            opened_states = sorted(opened_states, key=lambda p: p._h_val + p._depth)
 
         # if finished state not found, return failure
         return [], 0
@@ -150,8 +175,8 @@ class EightPuzzle:
         if value < 0 or value > 8:
             raise Exception("value out of range")
 
-        for row in range(3):
-            for col in range(3):
+        for row in xrange(3):
+            for col in xrange(3):
                 if self.adj_matrix[row][col] == value:
                     return row, col
 
@@ -169,13 +194,14 @@ class EightPuzzle:
         self.poke(pos_a[0], pos_a[1], self.peek(*pos_b))
         self.poke(pos_b[0], pos_b[1], temp)
 
+
 # Manhattan heuristic function for the 8-puzzle game
-def manhattan_heuristic(puzzleState):
+def manhattan_heuristic(puzzle_state):
     heuristic_val = 0
 
-    for row in range(3):
-        for col in range(3):
-            tile_value = puzzleState.peek(row, col)
+    for row in xrange(3):
+        for col in xrange(3):
+            tile_value = puzzle_state.peek(row, col)
             tile_destination = _goal_state_mapping[tile_value]
             target_col = tile_destination % 3
             target_row = tile_destination / 3
@@ -185,16 +211,24 @@ def manhattan_heuristic(puzzleState):
 
     return heuristic_val
 
+
 def main():
-    p = EightPuzzle()
-    print p
 
-    path, count = p.solve(manhattan_heuristic)
-    path.reverse()
-    for i in path:
-        print i
+    puzzles_to_solve = [EightPuzzle(start_state) for start_state in _states_to_solve]
 
-    print "Solved with Manhattan distance exploring", count, "states"
+    for eight_puzzle in puzzles_to_solve:
+        print eight_puzzle
+
+        if eight_puzzle.is_solvable():
+            print "state is not solvable!"
+
+        path, count = eight_puzzle.solve(manhattan_heuristic)
+        path.reverse()
+
+        for i in path:
+            print i
+
+        print "Solved with Manhattan distance exploring", count, "states"
 
 if __name__ == "__main__":
     main()

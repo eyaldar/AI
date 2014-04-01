@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 def back(path, n):
     if reject(path):
         return None
