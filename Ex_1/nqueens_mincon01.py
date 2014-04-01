@@ -41,5 +41,11 @@ def hits(solution, nr, col, row):
             total += 1
     return total
 
-
-n_queens(100)
+# MAIN
+import time
+for i in range(4,101,2):
+    start_time = time.time()
+    print 'N =', i
+    n_queens(i)
+    print time.time() - start_time, "seconds"
+    print '----'
