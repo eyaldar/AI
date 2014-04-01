@@ -12,7 +12,7 @@ _third_start_state = [[8, 3, 5],
                       [6, 7, 4]]
 
 
-_states_to_solve = [_first_start_state, _second_start_state, _third_start_state]
+_states_to_solve = [_first_start_state, _second_start_state]
 
 # A matrix representing the goal (final) state of the puzzle
 _goal_state = [[1, 2, 3],
@@ -23,12 +23,6 @@ _goal_state = [[1, 2, 3],
 _goal_state_mapping = {1: 0, 2: 1, 3: 2,
                        8: 3, 0: 4, 4: 5,
                        7: 6, 6: 7, 5: 8}
-
-
-def get_inversions_num(state_arr):
-    inversions_num = 0
-
-    return inversions_num
 
 
 def index(item, seq):
@@ -87,15 +81,6 @@ class EightPuzzle:
             free.append((row, col + 1))
 
         return free
-
-    def is_solvable(self):
-        arr = []
-        for row in self.adj_matrix:
-            arr += row
-
-        inversion_num = get_inversions_num(arr)
-
-        return inversion_num % 2 == 1
 
     def _generate_moves(self):
         free = self._get_legal_moves()
@@ -213,14 +198,10 @@ def manhattan_heuristic(puzzle_state):
 
 
 def main():
-
     puzzles_to_solve = [EightPuzzle(start_state) for start_state in _states_to_solve]
 
     for eight_puzzle in puzzles_to_solve:
         print eight_puzzle
-
-        if eight_puzzle.is_solvable():
-            print "state is not solvable!"
 
         path, count = eight_puzzle.solve(manhattan_heuristic)
         path.reverse()
