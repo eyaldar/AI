@@ -1,3 +1,6 @@
+import time
+
+
 def back(path, n):
     if reject(path):
         return None
@@ -34,7 +37,6 @@ def reject(path):
 
 
 # MAIN
-import time
 
 for i in range(4, 31, 2):
     start_time = time.time()
